@@ -38,7 +38,8 @@ public class SecurityConfig {
 	                .authorizeHttpRequests(request -> request
 	                		 .requestMatchers("api/auth/**").permitAll()
 	                		 .requestMatchers(HttpMethod.GET, "api/pets","api/pets/**", "api/pets/download/**", "api/comments/by-pet/**").permitAll()
-	                        .anyRequest().authenticated()).
+	                		 .requestMatchers(HttpMethod.POST, "api/pets","api/pets/**", "api/pets/download/**", "api/comments/by-pet/**").permitAll()
+	                		 .anyRequest().authenticated()).
 	                httpBasic(Customizer.withDefaults()).
 	                sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
