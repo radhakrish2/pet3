@@ -1,5 +1,4 @@
 package com.pet.auth;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,6 +34,7 @@ public class SecurityConfig {
 
 	        return http.csrf(customizer -> customizer.disable())
 	        		.cors(Customizer.withDefaults())
+
 	                .authorizeHttpRequests(request -> request
 	                		 .requestMatchers("api/auth/**").permitAll()
 	                		 .requestMatchers(HttpMethod.GET, "api/pets","api/pets/**", "api/pets/download/**", "api/comments/by-pet/**").permitAll()
