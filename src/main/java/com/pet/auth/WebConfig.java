@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Apply to all paths
-        .allowedOrigins("http://localhost:4200/","https://petapp-beryl.vercel.app/") 
+        .allowedOrigins("http://localhost:4200/","https://petapp-nine.vercel.app/") 
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // Allowed methods
                 .allowedHeaders("Content-Type", "Authorization") // Allow Authorization header
                 .allowCredentials(true); // Allow cookies or credentials if necessary
