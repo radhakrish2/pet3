@@ -34,8 +34,8 @@ public class Test {
 	@GetMapping
 	public String get() throws IOException {
 		 Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-	        Files.createDirectories(uploadPath);
-		return new String(uploadPath.toUri().toString());
+		 uploadPath=    Files.createDirectories(uploadPath);
+		return new String(uploadPath.getRoot().toAbsolutePath().toString());
 	}
 	
 
