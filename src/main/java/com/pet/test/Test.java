@@ -3,6 +3,7 @@ package com.pet.test;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,10 +22,7 @@ public class Test {
 	@Value("${file.upload-dir}")
 	private String uploadDir;
 	
-	@Value("${server.tomcat.basedir}")
-	private String rootURL;
-	
-	
+
 	@GetMapping("/{param}")
 	public String get(@RequestParam String param) {
 		return new String();
@@ -35,6 +33,9 @@ public class Test {
 	public String get() throws IOException {
 		 Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
 		 uploadPath=    Files.createDirectories(uploadPath);
+		 
+		
+		 
 		return new String(uploadPath.getRoot().toAbsolutePath().toString());
 	}
 	

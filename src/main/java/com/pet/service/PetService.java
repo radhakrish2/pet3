@@ -2,6 +2,7 @@ package com.pet.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,8 +38,7 @@ public class PetService {
 	@Value("${file.upload-dir}")
 	private String uploadDir;
 	
-	@Value("${server.tomcat.basedir}")
-	private String rootURL;
+
 	
 	@Autowired
 	private PetRepository petRepository;
@@ -65,20 +65,19 @@ public class PetService {
 
 	    // Handle image upload
 	    List<String> imagePaths = new ArrayList<>();
+	    
+	    Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Files.createDirectories(uploadPath);
+	    
+	    
 	    int i = 0; // Index for naming the files
 	    for (MultipartFile image : images) {
 	        // Generate the file name as "pet" + pet.id + "_" + i
 	        String fileName = "pet" + pet.getId() + "_" + i + image.getOriginalFilename().substring(image.getOriginalFilename().lastIndexOf("."));
-	        String filePath = uploadDir + "/" + fileName;
-	        
-	        File file = new File(filePath);
-	             
-	        // Save the file to the disk
-	        image.transferTo(file);
-
-	        // Add the file path to the list
-	        imagePaths.add("/api/pets/download/image/"+fileName);
-	        i++;
+	        Path filePath = uploadPath.resolve(fileName);
+            image.transferTo(filePath.toFile());
+            imagePaths.add("/api/pets/download/image/" + fileName);
+            i++;
 	    }
 	    pet.setImageUrls(imagePaths);
 
@@ -172,29 +171,27 @@ public class PetService {
 	public ResponseEntity<Resource> getImage(String fileName)
 	{
 		  
-		 try {
-	            // Construct the file path
-	            Path filePath = Paths.get(rootURL +"/work/Tomcat/localhost/ROOT/"+ uploadDir).resolve(fileName).normalize();
-	            
-	            System.err.println(filePath);
-	            
-	           String fileType="image/"+ fileName.substring(fileName.lastIndexOf('.')+1);
-	            
-	            // Load the file as a resource
-	            Resource resource = new UrlResource(filePath.toUri());
-	            if (!resource.exists()) {
-	                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-	            }
+		try {
+            Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path filePath = uploadPath.resolve(fileName).normalize();
 
-	            // Return the resource
-	            return ResponseEntity.ok().contentType(MediaType.parseMediaType(fileType))
-	                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-	                    .body(resource);
-	        } catch (Exception e) {
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-	            
-	        }
-	    
+            if (!Files.exists(filePath)) {
+                throw new ResourceNotFoundException("File not found: " + fileName);
+            }
+
+            Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists()) {
+                throw new ResourceNotFoundException("File not found: " + fileName);
+            }
+
+            String fileType = Files.probeContentType(filePath);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(fileType != null ? fileType : "application/octet-stream"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
 	
 	          
 	}
